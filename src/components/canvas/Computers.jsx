@@ -2,7 +2,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber"; //gives us an empty canvas to work with
 import { OrbitControls, Preload, useGLTF } from "@react-three/drei"; //these help us to draw on canvas use gltf allow us to import 3d models
 import CanvasLoader from "../Loader";
-const Computers = () => {
+const Computers = ({isMobile}) => {
   //importing model
   const computer = useGLTF("./desktop_pc/scene.gltf");
   //
@@ -24,8 +24,8 @@ const Computers = () => {
       />
       <primitive
         object={computer.scene}
-        scale={0.75}
-        position={[0, -3.25, -1.5]}
+        scale={isMobile?0.6: 0.75}
+        position={isMobile?[0,-3,-0.5]:[0, -3.25, -1.5]}
         rotation={[-0.01, -0.2, - 0.1]}
       />
     </mesh>
@@ -38,6 +38,25 @@ const Computers = () => {
 //suspense helps us to load the model
 //orbit helps us with the movment of model
 const ComputerCanvas = () => {
+const[isMobile,setIsMobile]=useState(false);
+useEffect(()=>{
+  //checks if the screen is mobile
+const mediaQuery=window.matchMedia('(max-width:500px)');
+//sets the value 
+setIsMobile(mediaQuery.matches);
+//when width changes
+const handleMediaQuery=(event)=>{
+  setIsMobile(event.matches);
+}
+//event listener
+mediaQuery.addEventListener('change',handleMediaQuery);
+
+return()=>{
+  mediaQuery.removeEventListener('change',handleMediaQuery);
+}
+
+},[])
+
   return (
     <Canvas
      frameloop="demand"
@@ -51,7 +70,7 @@ const ComputerCanvas = () => {
           maxPolarAngle={Math.PI / 2}
           minPolarAngle={Math.PI / 2}
         />
-        <Computers />
+        <Computers isMobile={isMobile} />
       </Suspense>
       <Preload all />
     </Canvas>
